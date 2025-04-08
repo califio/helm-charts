@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "code-secure.dashboardFullname" . }}
+  labels:
+    app.kubernetes.io/component: dashboard
+    {{- include "code-secure.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.dashboard.service.type }}
+  ports:
+    - port: {{ .Values.dashboard.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+      {{- if and (or (eq .Values.dashboard.service.type "NodePort") (eq .Values.dashboard.service.type "LoadBalancer")) .Values.dashboard.service.nodePort }}
+      nodePort: {{ .Values.dashboard.service.nodePort }}
+      {{- end }}
+  selector:
+    app.kubernetes.io/component: dashboard
+    {{- include "code-secure.selectorLabels" . | nindent 4 }}
