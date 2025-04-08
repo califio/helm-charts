@@ -30,7 +30,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "code-secure.dashboard.serviceAccountName" . }}
+      serviceAccountName: {{ include "code-secure.dashboardServiceAccountName" . }}
       {{- with .Values.dashboard.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
@@ -47,6 +47,19 @@ spec:
             - name: http
               containerPort: 8080
               protocol: TCP
+          envFrom:
+            {{- if .Values.dashboard.config.created }}
+            - configMapRef:
+                name: {{ include "code-secure.dashboardFullname" . }}
+            {{- end }}
+            {{- if .Values.dashboard.secret.created }}
+            - secretRef:
+                name: {{ include "code-secure.dashboardFullname" . }}
+            {{- end }}
+          {{- with .Values.dashboard.extraEnv }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.dashboard.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}

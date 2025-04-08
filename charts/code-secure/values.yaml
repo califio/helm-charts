@@ -19,6 +19,46 @@ dashboard:
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
     tag: ""
+  
+  # Create a configmap for dashboard environment variables, you can pass the configmap here or use extraEnv to get value from an existing configmap
+  config:
+    created: true
+    data: 
+      DB_SERVER: # set this if you want to use an external database server
+      DB_PORT: # set this if you want to use an external database port
+      DB_NAME: # set this if you want to use an external database name
+
+  # Create a secret for dashboard environment variables, you can pass the secrets here or use extraEnv to get value from an existing secret
+  secret:
+    created: true
+    data:
+      DB_USERNAME: # set this if you want to use an external database username
+      DB_PASSWORD: # set this if you want to use an external database password
+      # SYSTEM_PASSWORD is required for initial admin login
+      # MUST be changed from default value for production deployments
+      # Example: "S3cur3Pa$$w0rd"
+      SYSTEM_PASSWORD: admin
+      # MUST be set to a secure random UUID or similar for production
+      # Example: "3afd551d-6882-4a59-8027-09d2f0f723ac"
+      ACCESS_TOKEN_KEY: ""
+      # MUST be set to a different secure random UUID than ACCESS_TOKEN_KEY
+      # Example: "5bce441d-7992-4b68-9137-21e3f9834bdc"
+      REFRESH_TOKEN_KEY: ""
+
+  # Extra environment variables for the dashboard, you can use this to get value from an existing secret or configmap
+  extraEnv: []
+  # - name: DB_NAME
+  #   value: "codesecure"
+  # - name: DB_USERNAME
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: code-secure-secret
+  #       key: DB_USERNAME
+  # - name: DB_PASSWORD
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: code-secure-secret
+  #       key: DB_PASSWORD
 
   # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
   serviceAccount:
@@ -129,7 +169,7 @@ dashboard:
 
   tolerations: []
 
-  affinity: {}
+  affinity: {}    
 
 # PostgreSQL configuration, for more information checkout: https://github.com/bitnami/charts/tree/main/bitnami/postgresql
 postgresql:
@@ -140,9 +180,9 @@ postgresql:
     postgresql:
       auth:
         postgresPassword: ""
-        username: ""
-        password: ""
-        database: "code-secure"
+        username: "codesecure"
+        password: "superSecretPassword@@"
+        database: "codesecure"
         existingSecret: ""
         secretKeys:
           adminPasswordKey: ""
@@ -206,3 +246,23 @@ postgresql:
     ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
     ##
     tolerations: []
+
+# Extra raw manifests to be deployed like external-secrets, extra ingresses, services, etc.
+extraManifests: []
+  # - apiVersion: external-secrets.io/v1beta1
+  #   kind: ExternalSecret
+  #   metadata:
+  #     name: external-secret
+  #   spec:
+  #     refreshInterval: 1h
+  #     secretStoreRef:
+  #       name: secret-vault
+  #       kind: ClusterSecretStore
+  #     target:
+  #       name: code-secure-secret
+  #       creationPolicy: Owner
+  #     data:
+  #       - secretKey: DB_PASSWORD
+  #         remoteRef:
+  #           key: code-secure
+  #           property: DB_PASSWORD

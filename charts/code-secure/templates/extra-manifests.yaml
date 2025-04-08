@@ -1,0 +1,11 @@
+{{- if .Values.extraManifests }}
+---
+apiVersion: v1
+kind: List
+metadata:
+  resourceVersion: ""
+  labels:
+    {{- include "code-secure.labels" . | nindent 4 }}
+items:
+{{- toYaml .Values.extraManifests | nindent 2 }}
+{{- end }}
