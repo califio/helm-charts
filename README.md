@@ -1,6 +1,6 @@
-# Califio Helm Charts
+# Calif Helm Charts
 
-This repository contains Helm charts for deploying Califio's open-source applications in Kubernetes clusters.
+This repository contains Helm charts for deploying Calif's open-source applications in Kubernetes clusters.
 
 ## Available Charts
 
@@ -21,4 +21,4 @@ This project is licensed under the terms of the included LICENSE file.
 
 ## Support
 
-For support, please open an issue in this repository or contact the Califio team.
+For support, please open an issue in this repository or contact the Calif team.
